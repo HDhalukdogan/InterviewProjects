@@ -1,3 +1,9 @@
 <Solution>
+  <Folder Name="/CartCampaingEngine/">
+    <Project Path="Cart.API/Cart.API.csproj" Id="9d2e2fc4-359a-488b-81db-6d844586812b" />
+    <Project Path="Cart.Domain/Cart.Domain.csproj" Id="69a1b6ce-4d68-4d56-ad93-21575744249e" />
+    <Project Path="Cart.Persistence/Cart.Persistence.csproj" Id="a775a1ec-6c10-4fc5-8cc9-d1c19333cb00" />
+    <Project Path="Cart.Services/Cart.Services.csproj" Id="54d72797-83ea-4980-a589-8bfd84693d57" />
+  </Folder>
   <Project Path="DoctorAppointmentBookingAPI/DoctorAppointmentBookingAPI.csproj" />
 </Solution>
