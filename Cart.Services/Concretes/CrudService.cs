@@ -1,31 +1,90 @@
-﻿using Cart.Domain.Entities;
+﻿using AutoMapper;
+using Cart.Domain.Entities;
 using Cart.Persistence.Repositories;
 using Cart.Services.Abstracts;
+using Cart.Services.DTOs;
 using Microsoft.EntityFrameworkCore;
 
-namespace Cart.Services.Concretes
+namespace Cart.Services.Concretes;
+
+public class CrudService<TEntity, TDto, TCreateDto, TUpdateDto, TKey>(
+    IRepository<TEntity, TKey> repo,
+    IMapper mapper)
+    : ICrudService<TEntity, TDto, TCreateDto, TUpdateDto, TKey>
+    where TEntity : BaseEntity<TKey>
+    where TDto : BaseDto<TKey>
+    where TUpdateDto : BaseDto<TKey>
+    where TKey : struct
 {
-    public class CrudService<T>(IRepository<T> repo) : ICrudService<T> where T : BaseEntity<Guid>
+    protected DbSet<TEntity> Repository => repo.Table;
+    protected readonly IMapper Mapper = mapper;
+
+    public virtual async Task<IEnumerable<TDto>> GetAllAsync()
     {
-        protected DbSet<T> Repository => repo.Table;
+        var entities = await Repository.AsNoTracking().ToListAsync();
+        return Mapper.Map<IEnumerable<TDto>>(entities);
+    }
 
-        public async Task CreateAsync(T entity, bool autoSave = true)
+    public virtual async Task<TDto?> GetByIdAsync(TKey id)
+    {
+        var entity = await Repository.AsNoTracking().FirstOrDefaultAsync(x => EF.Property<TKey>(x, "Id").Equals(id));
+        return entity is null ? null : Mapper.Map<TDto>(entity);
+    }
+
+    public virtual async Task<TDto> CreateAsync(TCreateDto createDto, bool autoSave = true)
+    {
+        var entity = Mapper.Map<TEntity>(createDto);
+
+        await Repository.AddAsync(entity);
+
+        if (autoSave)
         {
-            await Repository.AddAsync(entity);
-            if (autoSave)
-            {
-                await CompleteAsync();
-            }
+            await CompleteAsync();
         }
 
-        public virtual async Task<IEnumerable<T>> GetAllAsync()
+        return Mapper.Map<TDto>(entity);
+    }
+
+    public virtual async Task<TDto> UpdateAsync(TUpdateDto updateDto, bool autoSave = true)
+    {
+        var entity = await Repository.FindAsync(updateDto.Id);
+        if (entity is null)
         {
-            return await Repository.ToListAsync();
+            throw new KeyNotFoundException($"Id: {updateDto.Id} olan kayıt bulunamadı.");
         }
 
-        public Task<int> CompleteAsync()
+        Mapper.Map(updateDto, entity);
+
+        Repository.Update(entity);
+
+        if (autoSave)
         {
-            return repo.SaveChangesAsync();
+            await CompleteAsync();
         }
+
+        return Mapper.Map<TDto>(entity);
+    }
+
+    public virtual async Task<bool> DeleteAsync(TKey id, bool autoSave = true)
+    {
+        var entity = await Repository.FindAsync(id);
+        if (entity is null)
+        {
+            return false;
+        }
+
+        Repository.Remove(entity);
+
+        if (autoSave)
+        {
+            await CompleteAsync();
+        }
+
+        return true;
+    }
+
+    public Task<int> CompleteAsync()
+    {
+        return repo.SaveChangesAsync();
     }
 }

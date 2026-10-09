@@ -9,7 +9,7 @@ namespace Cart.API.Extensions
         public static IServiceCollection AddCrudServices(this IServiceCollection services, Assembly assembly)
         {
             // 1. CrudService<> açık tipini referans alıyoruz
-            var openGenericType = typeof(CrudService<>);
+            var openGenericType = typeof(CrudService<,,,,>);
 
             // 2. Assembly içindeki somut sınıfları filtrele
             var serviceTypes = assembly.GetTypes()
@@ -19,7 +19,7 @@ namespace Cart.API.Extensions
             {
                 // Sınıfın implement ettiği interface'leri al (ör. IUserService)
                 var interfaces = implementationType.GetInterfaces()
-                    .Where(i => !i.IsGenericType || i.GetGenericTypeDefinition() != typeof(ICrudService<>));
+                    .Where(i => !i.IsGenericType || i.GetGenericTypeDefinition() != typeof(ICrudService<,,,,>));
 
                 foreach (var serviceInterface in interfaces)
                 {

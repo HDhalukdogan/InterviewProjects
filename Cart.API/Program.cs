@@ -1,6 +1,7 @@
 using Cart.API.Extensions;
 using Cart.Persistence.Contexts;
 using Cart.Persistence.Repositories;
+using Cart.Services;
 using Cart.Services.Abstracts;
 using Cart.Services.Concretes;
 using Microsoft.EntityFrameworkCore;
@@ -11,9 +12,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<CartContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("CartCampaingContext") ?? throw new InvalidOperationException("Connection string 'CartCampaingContext' not found.")));
 
-builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-builder.Services.AddScoped(typeof(ICrudService<>), typeof(CrudService<>));
-builder.Services.AddCrudServices(typeof(CrudService<>).Assembly);
+builder.Services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));
+builder.Services.AddScoped(typeof(ICrudService<,,,,>), typeof(CrudService<,,,,>));
+builder.Services.AddCrudServices(typeof(CrudService<,,,,>).Assembly);
+builder.Services.AddAutoMapper(cfg => cfg.AddMaps(typeof(MapProfile).Assembly));
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
