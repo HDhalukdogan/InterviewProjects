@@ -20,10 +20,10 @@ public class CrudService<TEntity, TDto, TCreateDto, TUpdateDto, TKey>(
     where TKey : struct
 {
     private readonly ConcurrentDictionary<Type, object> _cachedServices = new();
-
-
     protected DbSet<TEntity> Repository => repo.Table;
     protected readonly IMapper Mapper = mapper;
+
+    public DbSet<TEntity> Table => repo.Table;
 
     public virtual T LazyGetRequiredService<T>() where T : notnull
     {
