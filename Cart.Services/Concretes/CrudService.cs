@@ -4,20 +4,36 @@ using Cart.Persistence.Repositories;
 using Cart.Services.Abstracts;
 using Cart.Services.DTOs;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using System.Collections.Concurrent;
 
 namespace Cart.Services.Concretes;
 
 public class CrudService<TEntity, TDto, TCreateDto, TUpdateDto, TKey>(
     IRepository<TEntity, TKey> repo,
-    IMapper mapper)
+    IMapper mapper,
+    IServiceProvider serviceProvider)
     : ICrudService<TEntity, TDto, TCreateDto, TUpdateDto, TKey>
     where TEntity : BaseEntity<TKey>
     where TDto : BaseDto<TKey>
     where TUpdateDto : BaseDto<TKey>
     where TKey : struct
 {
+    private readonly ConcurrentDictionary<Type, object> _cachedServices = new();
+
+
     protected DbSet<TEntity> Repository => repo.Table;
     protected readonly IMapper Mapper = mapper;
+
+    public virtual T LazyGetRequiredService<T>() where T : notnull
+    {
+        return (T)LazyGetRequiredService(typeof(T));
+    }
+
+    public virtual object LazyGetRequiredService(Type serviceType)
+    {
+        return _cachedServices.GetOrAdd(serviceType,serviceProvider.GetRequiredService);
+    }
 
     public virtual async Task<IEnumerable<TDto>> GetAllAsync()
     {

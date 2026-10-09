@@ -6,7 +6,7 @@ using Cart.Services.DTOs.User;
 
 namespace Cart.Services.Concretes
 {
-    public class UserService(IRepository<User, Guid> repository, IMapper mapper) : CrudService<User, UserDto, UserCreateDto, UserUpdateDto, Guid>(repository, mapper), IUserService
+    public class UserService(IRepository<User, Guid> repository, IMapper mapper, IServiceProvider serviceProvider) : CrudService<User, UserDto, UserCreateDto, UserUpdateDto, Guid>(repository, mapper, serviceProvider), IUserService
     {
     }
 }
