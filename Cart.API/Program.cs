@@ -17,6 +17,8 @@ builder.Services.AddScoped(typeof(ICrudService<,,,,>), typeof(CrudService<,,,,>)
 builder.Services.AddCrudServices(typeof(CrudService<,,,,>).Assembly);
 builder.Services.AddAutoMapper(cfg => cfg.AddMaps(typeof(MapProfile).Assembly));
 
+builder.Services.AddCors();
+
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
