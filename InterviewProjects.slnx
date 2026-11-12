@@ -9,4 +9,11 @@
     <Project Path="Cart.Persistence/Cart.Persistence.csproj" Id="a775a1ec-6c10-4fc5-8cc9-d1c19333cb00" />
     <Project Path="Cart.Services/Cart.Services.csproj" Id="54d72797-83ea-4980-a589-8bfd84693d57" />
   </Folder>
+  <Folder Name="/DoctorRedisApp/">
+    <Project Path="DoctorRedis.API/DoctorRedis.API.csproj" Id="ffee0c8e-2ba0-4ff1-9301-29c5c169c754" />
+    <Project Path="DoctorRedis.Domain/DoctorRedis.Domain.csproj" Id="8d523cc9-4cd8-4041-9f36-088d9bc126fe" />
+    <Project Path="DoctorRedis.Infrastructure/DoctorRedis.Infrastructure.csproj" Id="257702e9-4205-46a2-84b4-f3590af0904d" />
+    <Project Path="DoctorRedis.Persistence/DoctorRedis.Persistence.csproj" Id="a998773d-34af-4de1-b822-f702e189433b" />
+    <Project Path="DoctorRedis.Service/DoctorRedis.Service.csproj" Id="3884b9c6-1c0d-476a-84be-556457373dca" />
+  </Folder>
 </Solution>
