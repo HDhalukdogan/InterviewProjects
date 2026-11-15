@@ -9,6 +9,7 @@ namespace DoctorRedis.Service.Mappings
         public MappingProfile()
         {
             CreateMap<Doctor,DoctorDto>().ReverseMap();
+            CreateMap<Patient,PatientDto>().ReverseMap();
         }
     }
 }

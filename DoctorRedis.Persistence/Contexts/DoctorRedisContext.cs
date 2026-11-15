@@ -3,13 +3,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DoctorRedis.Persistence.Contexts
 {
-    public class DoctorRedisContext : DbContext
+    public class DoctorRedisContext(DbContextOptions<DoctorRedisContext> options) : DbContext(options)
     {
-        public DoctorRedisContext(DbContextOptions<DoctorRedisContext> options) : base(options)
-        {
-
-        }
-
         public DbSet<Doctor> Doctors { get; set; }
         public DbSet<Patient> Patients { get; set; }
         public DbSet<Appointment> Appointments { get; set; }
