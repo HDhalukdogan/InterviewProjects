@@ -2,6 +2,12 @@
   <Folder Name="/AppointmentApp/">
     <Project Path="DoctorAppointmentBookingAPI/DoctorAppointmentBookingAPI.csproj" />
   </Folder>
+  <Folder Name="/AppointmentDbFirst/">
+    <Project Path="AppointmentDbFirst/AppointmentDbFirst.Api/AppointmentDbFirst.Api.csproj" Id="0bf718e8-1f53-455e-af88-10175d7f6dd7" />
+    <Project Path="AppointmentDbFirst/AppointmentDbFirst.Domain/AppointmentDbFirst.Domain.csproj" Id="5796005e-5a39-4c9d-9003-ce9cbf5bcd16" />
+    <Project Path="AppointmentDbFirst/AppointmentDbFirst.Persistence/AppointmentDbFirst.Persistence.csproj" Id="2c6c894c-6217-459e-affe-2809b6f8ddfe" />
+    <Project Path="AppointmentDbFirst/AppointmentDbFirst.Service/AppointmentDbFirst.Service.csproj" Id="7b8fd786-f47c-4131-8d38-26192b1372f5" />
+  </Folder>
   <Folder Name="/CartCampaingEngine/">
     <Project Path="Cart.API/Cart.API.csproj" Id="9d2e2fc4-359a-488b-81db-6d844586812b" />
     <Project Path="Cart.CodeGenerator/Cart.CodeGenerator.csproj" Id="b77fe79f-08ea-43d1-9525-fc9218db0b66" />

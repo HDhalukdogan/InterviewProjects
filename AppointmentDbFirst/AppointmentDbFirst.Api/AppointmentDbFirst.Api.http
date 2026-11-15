@@ -1,0 +1,6 @@
+@AppointmentDbFirst.Api_HostAddress = http://localhost:5067
+
+GET {{AppointmentDbFirst.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
