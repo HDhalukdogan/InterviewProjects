@@ -4,3 +4,7 @@ GET {{AppointmentDbFirst.Api_HostAddress}}/weatherforecast/
 Accept: application/json
 
 ###
+
+GET {{AppointmentDbFirst.Api_HostAddress}}/api/doctors
+
+###
