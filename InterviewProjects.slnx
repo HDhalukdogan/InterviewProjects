@@ -23,4 +23,10 @@
     <Project Path="DoctorRedis.Persistence/DoctorRedis.Persistence.csproj" Id="a998773d-34af-4de1-b822-f702e189433b" />
     <Project Path="DoctorRedis.Service/DoctorRedis.Service.csproj" Id="3884b9c6-1c0d-476a-84be-556457373dca" />
   </Folder>
+  <Folder Name="/PrescriptionApp/">
+    <Project Path="PrescriptionApp.Application/PrescriptionApp.Application.csproj" Id="44f7d1fa-cd25-4c34-ad28-5237da5708e8" />
+    <Project Path="PrescriptionApp/PrescriptionApp.API/PrescriptionApp.API.csproj" Id="b84c76f0-7c15-400e-b2e8-bb9ce25a1d56" />
+    <Project Path="PrescriptionApp/PrescriptionApp.Domain/PrescriptionApp.Domain.csproj" Id="8e437d88-f25f-4b6c-b074-b5d6852f8355" />
+    <Project Path="PrescriptionApp/PrescriptionApp.Persistence/PrescriptionApp.Persistence.csproj" Id="2e1a1770-3d5f-4c66-8c3c-12bccc1223e5" />
+  </Folder>
 </Solution>

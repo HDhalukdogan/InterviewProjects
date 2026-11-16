@@ -1,0 +1,35 @@
+@PrescriptionApp.API_HostAddress = http://localhost:5120
+
+GET {{PrescriptionApp.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+### 1. Örnek Doktor, Hasta ve İlaç Verilerini Ekle (Seed)
+POST {{PrescriptionApp.API_HostAddress}}/api/prescriptions/seed
+
+### 2. Yeni Reçete Oluştur (DB'ye yazar + Redis'e Cache'ler + RabbitMQ'ya Event atar)
+POST {{PrescriptionApp.API_HostAddress}}/api/prescriptions
+Content-Type: application/json
+
+{
+  "doctorId": 1,
+  "patientId": 1,
+  "validDays": 3,
+  "items": [
+    {
+      "medicineId": 1,
+      "quantity": 2,
+      "dosageInstructions": "Günde 2x1 tok karnına"
+    },
+    {
+      "medicineId": 2,
+      "quantity": 1,
+      "dosageInstructions": "12 saatte bir 1 tablet"
+    }
+  ]
+}
+
+### 3. Reçete Koduyla Sorgula (2. adımda dönen RX-2026-XXXXXX kodunu yaz — Redis'ten döner)
+GET {{PrescriptionApp.API_HostAddress}}/api/prescriptions/RX-2026-D05D44
+
+### 4. Eczaneden İlaçları Teslim Et (Redis Distributed Lock alır + Stok düşer + Cache siler + Event atar)
+POST {{PrescriptionApp.API_HostAddress}}/api/prescriptions/RX-2026-D05D44/dispense
