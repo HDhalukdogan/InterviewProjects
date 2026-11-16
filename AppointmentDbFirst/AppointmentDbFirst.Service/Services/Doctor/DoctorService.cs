@@ -6,6 +6,9 @@ using AppointmentDbFirst.Persistence.Contexts;
 using AppointmentDbFirst.Service.DTOs;
 using AppointmentDbFirst.Service.DTOs.Doctor;
 using Microsoft.EntityFrameworkCore;
+using RabbitMQ.Client;
+using System.Text;
+using System.Text.Json;
 
 namespace AppointmentDbFirst.Service.Services
 {
@@ -22,12 +25,43 @@ namespace AppointmentDbFirst.Service.Services
                 WorkingHoursStart = doctorCreateDto.WorkingHoursStart,
                 WorkingHoursEnd = doctorCreateDto.WorkingHoursEnd,
             };
-            var doctor = await context.Doctors.AddAsync(entity);
+            await context.Doctors.AddAsync(entity);
 
             await context.SaveChangesAsync();
 
 
             await rabbitMQService.PublishAsync(RabbitMQConstants.DbFirstDoctorCreatedQueue, new DoctorCreatedEvent(entity.Id,entity.FullName));
+
+            //var factory = new ConnectionFactory
+            //{
+            //    HostName = RabbitMQConstants.HostName,
+            //    Port = int.Parse(RabbitMQConstants.Port),
+            //    UserName = RabbitMQConstants.UserName,
+            //    Password = RabbitMQConstants.Password
+            //};
+
+            //await using var connection = await factory.CreateConnectionAsync();
+            //await using var channel = await connection.CreateChannelAsync();
+
+            //await channel.QueueDeclareAsync(
+            //queue: RabbitMQConstants.DbFirstDoctorCreatedQueue,
+            //durable: true,
+            //exclusive: false,
+            //autoDelete: false,
+            //arguments: null);
+
+            //var eventMessage = new DoctorCreatedEvent(entity.Id, entity.FullName);
+
+            //var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(eventMessage));
+            //var properties = new BasicProperties { Persistent = true };
+
+            //await channel.BasicPublishAsync(
+            //    exchange: string.Empty,
+            //    routingKey: RabbitMQConstants.DbFirstDoctorCreatedQueue,
+            //    mandatory: false,
+            //    basicProperties: properties,
+            //    body: body);
+
 
             var key = cacheService.GenerateKey("allDoctors", "noFilter");
 
