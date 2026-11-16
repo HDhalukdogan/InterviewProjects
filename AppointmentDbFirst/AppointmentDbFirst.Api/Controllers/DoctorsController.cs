@@ -1,4 +1,5 @@
-﻿using AppointmentDbFirst.Service.Services;
+﻿using AppointmentDbFirst.Service.DTOs.Doctor;
+using AppointmentDbFirst.Service.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,6 +14,13 @@ namespace AppointmentDbFirst.Api.Controllers
         {
             var doctors = await doctorService.GetAllAsync();
             return Ok(doctors);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Create(DoctorCreateDto doctorCreateDto)
+        {
+            var doctor = await doctorService.CreateAsync(doctorCreateDto);
+            return Ok(doctor);
         }
     }
 }

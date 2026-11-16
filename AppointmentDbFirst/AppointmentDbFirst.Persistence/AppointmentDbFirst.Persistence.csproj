@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AppointmentDbFirst.Domain\AppointmentDbFirst.Domain.csproj" />
+    <ProjectReference Include="..\AppointmentDbFirst.Infrastructure\AppointmentDbFirst.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
