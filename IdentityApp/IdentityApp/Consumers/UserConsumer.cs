@@ -48,6 +48,8 @@ namespace IdentityApp.Consumers
             await Task.Delay(Timeout.Infinite, stoppingToken);
         }
     }
+
+
     //public class UserConsumer : BackgroundService
     //{
     //    private IConnection? connection;
@@ -102,7 +104,7 @@ namespace IdentityApp.Consumers
     //        {
     //            try
     //            {
-    //                var json = Encoding.UTF8.GetString(ea.Body.ToArray());
+    //                var json = Encoding.UTF8.GetString(ea.Body.Span);
     //                var dto = JsonSerializer.Deserialize<UserDto>(json);
 
     //                if (dto is not null)
@@ -116,7 +118,7 @@ namespace IdentityApp.Consumers
     //            catch (Exception)
     //            {
 
-    //                await channel.BasicAckAsync(deliveryTag:ea.DeliveryTag,multiple: false, cancellationToken: stoppingToken);
+    //                await channel.BasicAckAsync(deliveryTag: ea.DeliveryTag, multiple: false, cancellationToken: stoppingToken);
     //            }
     //        };
 
@@ -126,6 +128,7 @@ namespace IdentityApp.Consumers
     //           consumer: consumer,
     //           cancellationToken: stoppingToken
     //            );
+
     //        await Task.Delay(Timeout.Infinite, stoppingToken);
     //    }
 

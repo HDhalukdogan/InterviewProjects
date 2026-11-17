@@ -52,26 +52,6 @@ namespace IdentityApp.Controllers
                 routingKey: RabbitMQConstants.UserQueue,
                 body: body);
 
-            //await channel.ExchangeDeclareAsync(
-            //    exchange: RabbitMQConstants.UserExchange,
-            //    type: ExchangeType.Direct,
-            //    durable: true,
-            //    autoDelete: false,
-            //    cancellationToken: default);
-
-            //await channel.QueueDeclareAsync(
-            //    queue: RabbitMQConstants.UserQueue,
-            //    durable: true,
-            //    exclusive: false,
-            //    autoDelete: false,
-            //    cancellationToken: default
-            //    );
-
-            //await channel.QueueBindAsync(
-            //    queue: RabbitMQConstants.UserQueue,
-            //    exchange: RabbitMQConstants.UserExchange,
-            //    routingKey: RabbitMQConstants.UserRoutingKey,
-            //    cancellationToken: default);
 
             //var properties = new BasicProperties
             //{
