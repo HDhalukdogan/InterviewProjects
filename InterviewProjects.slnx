@@ -16,6 +16,12 @@
     <Project Path="Cart.Persistence/Cart.Persistence.csproj" Id="a775a1ec-6c10-4fc5-8cc9-d1c19333cb00" />
     <Project Path="Cart.Services/Cart.Services.csproj" Id="54d72797-83ea-4980-a589-8bfd84693d57" />
   </Folder>
+  <Folder Name="/CartDbFirstApp/">
+    <Project Path="CartDbFirstApp/CartDbFirstApp.API/CartDbFirstApp.API.csproj" Id="af1854e9-10e5-4b5d-a47c-93f5e8c3052f" />
+    <Project Path="CartDbFirstApp/CartDbFirstApp.Domain/CartDbFirstApp.Domain.csproj" Id="01ae635b-bbd8-4f6a-9687-d36504076731" />
+    <Project Path="CartDbFirstApp/CartDbFirstApp.Persistence/CartDbFirstApp.Persistence.csproj" Id="87c4998a-2008-479c-902f-d1f4fa73d8ec" />
+    <Project Path="CartDbFirstApp/CartDbFirstApp.Service/CartDbFirstApp.Service.csproj" Id="b69a3108-9974-459c-b3d6-8da768064392" />
+  </Folder>
   <Folder Name="/DoctorRedisApp/">
     <Project Path="DoctorRedis.API/DoctorRedis.API.csproj" Id="ffee0c8e-2ba0-4ff1-9301-29c5c169c754" />
     <Project Path="DoctorRedis.Domain/DoctorRedis.Domain.csproj" Id="8d523cc9-4cd8-4041-9f36-088d9bc126fe" />
