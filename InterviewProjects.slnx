@@ -1,4 +1,10 @@
 <Solution>
+  <Folder Name="/AmbulanceApp/">
+    <Project Path="AmbulanceApp/AmbulanceApp.API/AmbulanceApp.API.csproj" Id="160991a1-5032-461f-9f07-c6829bfe611d" />
+    <Project Path="AmbulanceApp/AmbulanceApp.Domain/AmbulanceApp.Domain.csproj" Id="2925568e-96ee-4962-9236-fedae3f39eb8" />
+    <Project Path="AmbulanceApp/AmbulanceApp.Persistence/AmbulanceApp.Persistence.csproj" Id="d1230b4c-a8d2-4aed-b941-7947f7d24b63" />
+    <Project Path="AmbulanceApp/AmbulanceApp.Service/AmbulanceApp.Service.csproj" Id="5fca231e-5ecf-4e6c-a434-b89cee848da7" />
+  </Folder>
   <Folder Name="/AppointmentApp/">
     <Project Path="DoctorAppointmentBookingAPI/DoctorAppointmentBookingAPI.csproj" />
   </Folder>

@@ -1,0 +1,41 @@
+@AmbulanceApp.API_HostAddress = http://localhost:5197
+
+GET {{AmbulanceApp.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
+
+### 1. Örnek Hastane ve 3 Ambulansı Oluştur + Redis GEO'ya Yükle
+POST {{AmbulanceApp.API_HostAddress}}/api/ambulances/seed
+
+### 2. Sıhhiye Civarından Acil Durum Çağrısı Oluştur (ANK-112-01'e en yakın nokta)
+POST {{AmbulanceApp.API_HostAddress}}/api/ambulances/calls
+Content-Type: application/json
+
+{
+  "callerName": "Ali Kaya",
+  "callerPhone": "05320001122",
+  "incidentAddress": "Sıhhiye Meydanı, Çankaya/Ankara",
+  "latitude": 39.927800,
+  "longitude": 32.854800,
+  "incidentType": "Trafik Kazası",
+  "priority": 1
+}
+
+### 3. En Yakın Müsait Ambulansı Bul ve Sevk Et (ANK-112-01'i ~0.78 km ile bulup atar)
+POST {{AmbulanceApp.API_HostAddress}}/api/ambulances/calls/1/dispatch-nearest
+
+### 4. Olay Yerine Varış (OnScene)
+POST {{AmbulanceApp.API_HostAddress}}/api/ambulances/dispatches/1/arrived
+
+### 5. Hastaneye Nakil Başlat (Transporting -> HospitalId: 1)
+POST {{AmbulanceApp.API_HostAddress}}/api/ambulances/dispatches/1/depart-hospital/1
+
+### 6. Vakayı Tamamla (Ambulans tekrar Available olur ve Redis GEO havuzuna döner)
+POST {{AmbulanceApp.API_HostAddress}}/api/ambulances/dispatches/1/complete
+Content-Type: application/json
+
+{
+  "hospitalId": 1,
+  "caseNotes": "Hasta bilinci açık şekilde acil servise teslim edildi."
+}
