@@ -3,7 +3,11 @@ using IdentityApp.Data;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using StackExchange.Redis;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -48,14 +52,38 @@ builder.Services.ConfigureApplicationCookie(options =>
     // 3. SecurePolicy: HTTP ortamında (localhost) çerezin düşmemesini sağlar, HTTPS'de otomatik güvenli olur.
     options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
 
-    // 4. OnRedirectToLogin: API mimarisinde unauthenticated isteklerde MVC gibi login sayfasına yönlendirmek (302) yerine 401 Unauthorized döner.
+    // 4. JWT Token Cookie Entegrasyonu: Giriş yapıldığında Cart.API gibi JWT bazlı mikroservisler için "access_token" çerezi üretir
+    options.Events.OnSigningIn = context =>
+    {
+        if (context.Principal != null)
+        {
+            var jwt = GenerateJwtToken(context.Principal);
+            context.Response.Cookies.Append("access_token", jwt, new CookieOptions
+            {
+                HttpOnly = true,
+                SameSite = SameSiteMode.Lax,
+                Secure = context.Request.IsHttps,
+                Path = "/",
+                Expires = DateTimeOffset.UtcNow.AddDays(7)
+            });
+        }
+        return Task.CompletedTask;
+    };
+
+    options.Events.OnSigningOut = context =>
+    {
+        context.Response.Cookies.Delete("access_token", new CookieOptions { Path = "/" });
+        return Task.CompletedTask;
+    };
+
+    // 5. OnRedirectToLogin: API mimarisinde unauthenticated isteklerde MVC gibi login sayfasına yönlendirmek (302) yerine 401 Unauthorized döner.
     options.Events.OnRedirectToLogin = context =>
     {
         context.Response.StatusCode = StatusCodes.Status401Unauthorized;
         return Task.CompletedTask;
     };
 
-    // 5. OnRedirectToAccessDenied: Yetkisiz rol/erişimlerde (Forbidden) yönlendirme (302) yerine 403 döner.
+    // 6. OnRedirectToAccessDenied: Yetkisiz rol/erişimlerde (Forbidden) yönlendirme (302) yerine 403 döner.
     options.Events.OnRedirectToAccessDenied = context =>
     {
         context.Response.StatusCode = StatusCodes.Status403Forbidden;
@@ -89,10 +117,53 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapGroup("api").MapIdentityApi<IdentityUser>();
 
-app.MapPost("api/logout", async (SignInManager<IdentityUser> signInManager) =>
+app.MapPost("api/logout", async (SignInManager<IdentityUser> signInManager, HttpContext httpContext) =>
 {
     await signInManager.SignOutAsync();
+    httpContext.Response.Cookies.Delete("access_token", new CookieOptions { Path = "/" });
     return Results.Ok(new { message = "Logged out successfully" });
 });
 
+app.MapGet("api/token", (HttpContext httpContext) =>
+{
+    if (httpContext.Request.Cookies.TryGetValue("access_token", out var token) && !string.IsNullOrEmpty(token))
+    {
+        return Results.Ok(new { token });
+    }
+    return Results.Unauthorized();
+});
+
 app.Run();
+
+// JWT Üretici Yardımcı Metot
+static string GenerateJwtToken(ClaimsPrincipal principal)
+{
+    var tokenHandler = new JwtSecurityTokenHandler();
+    var key = Encoding.UTF8.GetBytes("SuperSecretKeyForInterviewProjectsJwtAuth2026!");
+
+    var claims = new List<Claim>();
+    var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    var email = principal.FindFirst(ClaimTypes.Email)?.Value ?? principal.Identity?.Name;
+    var name = principal.Identity?.Name;
+
+    if (!string.IsNullOrEmpty(userId))
+        claims.Add(new Claim(ClaimTypes.NameIdentifier, userId));
+    if (!string.IsNullOrEmpty(email))
+        claims.Add(new Claim(ClaimTypes.Email, email));
+    if (!string.IsNullOrEmpty(name))
+        claims.Add(new Claim(ClaimTypes.Name, name));
+
+    var tokenDescriptor = new SecurityTokenDescriptor
+    {
+        Subject = new ClaimsIdentity(claims),
+        Expires = DateTime.UtcNow.AddDays(7),
+        Issuer = "IdentityApp",
+        Audience = "InterviewProjects",
+        SigningCredentials = new SigningCredentials(
+            new SymmetricSecurityKey(key),
+            SecurityAlgorithms.HmacSha256Signature)
+    };
+
+    var token = tokenHandler.CreateToken(tokenDescriptor);
+    return tokenHandler.WriteToken(token);
+}
