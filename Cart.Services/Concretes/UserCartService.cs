@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Cart.Domain.Entities;
 using Cart.Persistence.Repositories;
 using Cart.Services.Abstracts;
@@ -11,8 +11,13 @@ namespace Cart.Services.Concretes
     public class UserCartService(IRepository<UserCart, Guid> repository, IMapper mapper, IServiceProvider serviceProvider) : CrudService<UserCart, UserCartDto, UserCartCreateDto, UserCartUpdateDto, Guid>(repository, mapper, serviceProvider), IUserCartService
     {
         private IProductService ProductService => LazyGetRequiredService<IProductService>();
+        private IUserService UserService => LazyGetRequiredService<IUserService>();
+
         public async Task<UserCartDto?> AddCartItemToUserCartAsync(Guid userId, CartItemCreateDto cartItemCreateDto)
         {
+            // Sadece giriş yapan kullanıcı varsa Cart DB'sindeki Users tablosuna ekle / doğrula
+            await UserService.EnsureUserExistsAsync(userId, "Identity User");
+
             var userCart = await Repository.Include(s => s.Items).FirstOrDefaultAsync(s => s.UserId.Equals(userId));
 
             var product = await ProductService.GetByIdAsync(cartItemCreateDto.ProductId);

@@ -2,15 +2,17 @@ using Cart.Domain.Entities;
 using Cart.Services.Abstracts;
 using Cart.Services.DTOs.CartItem;
 using Cart.Services.DTOs.UserCart;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
 namespace Cart.API.Controllers
 {
-    public class UserCartsController(IUserCartService userCartService)
+    public class UserCartsController(IUserCartService userCartService, IUserService userService)
         : BaseCrudController<UserCart, UserCartDto, UserCartCreateDto, UserCartUpdateDto, Guid>(userCartService)
     {
-        // JWT çerezinden okunan kimlik bilgisini test ve doğrulama endpoint'i
+        // JWT çerezinden okunan kimlik durumunu kontrol eden endpoint
+        [AllowAnonymous]
         [HttpGet("user-info")]
         public IActionResult GetUserInfo()
         {
@@ -23,29 +25,53 @@ namespace Cart.API.Controllers
                     email = User.FindFirst(ClaimTypes.Email)?.Value ?? User.Identity.Name
                 });
             }
-            return Ok(new { isAuthenticated = false, message = "JWT çerezi veya oturum bulunamadı." });
+            return Ok(new { isAuthenticated = false, message = "Oturum açılmamış." });
         }
 
-        [HttpPut("addItemToUserCart")]
-        public async Task<IActionResult> AddItemToUserCart(CartItemCreateDto dto, [FromQuery] Guid? userId = null)
+        // Giriş yapan kullanıcının kendi sepetini getiren endpoint
+        [Authorize]
+        [HttpGet("my-cart")]
+        public async Task<IActionResult> GetMyCart()
         {
-            // Kullanıcı JWT ile giriş yapmışsa kimliğini doğrudan JWT claim'inden al
-            Guid targetUserId;
-            if (userId.HasValue && userId.Value != Guid.Empty)
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!Guid.TryParse(userIdString, out var userId))
             {
-                targetUserId = userId.Value;
-            }
-            else
-            {
-                var claimUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (!Guid.TryParse(claimUserId, out targetUserId))
-                {
-                    // Giriş yapılmamışsa geriye dönük uyumluluk için varsayılan id
-                    targetUserId = Guid.Parse("01a116bd-ef79-7551-8a1f-819096434c1e");
-                }
+                return Unauthorized(new { message = "Oturum açmış kullanıcı kimliği doğrulanamadı." });
             }
 
-            var response = await userCartService.AddCartItemToUserCartAsync(targetUserId, dto);
+            var fullName = User.FindFirst(ClaimTypes.Email)?.Value 
+                          ?? User.FindFirst(ClaimTypes.Name)?.Value 
+                          ?? User.Identity?.Name 
+                          ?? "Identity User";
+
+            // Sadece giriş yapan kullanıcı varsa Cart DB'sindeki Users tablosuna ekle / doğrula
+            await userService.EnsureUserExistsAsync(userId, fullName);
+
+            var allCarts = await userCartService.GetAllAsync();
+            var myCart = allCarts.FirstOrDefault(c => c.UserId == userId);
+            return Ok(myCart);
+        }
+
+        // Sepete ürün ekleme: SADECE giriş yapan Identity kullanıcısı varsa ekler ve Users tablosuna kaydeder.
+        [Authorize]
+        [HttpPut("addItemToUserCart")]
+        public async Task<IActionResult> AddItemToUserCart([FromBody] CartItemCreateDto dto)
+        {
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!Guid.TryParse(userIdString, out var userId))
+            {
+                return Unauthorized(new { message = "Sepete ürün eklemek için geçerli bir kullanıcı oturumu gereklidir." });
+            }
+
+            var fullName = User.FindFirst(ClaimTypes.Email)?.Value 
+                          ?? User.FindFirst(ClaimTypes.Name)?.Value 
+                          ?? User.Identity?.Name 
+                          ?? "Identity User";
+
+            // SADECE giriş yapan Identity kullanıcısı varsa Cart DB'sindeki Users tablosuna kaydet/doğrula
+            await userService.EnsureUserExistsAsync(userId, fullName);
+
+            var response = await userCartService.AddCartItemToUserCartAsync(userId, dto);
             return Ok(response);
         }
     }
