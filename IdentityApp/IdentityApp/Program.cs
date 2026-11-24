@@ -1,5 +1,6 @@
 using IdentityApp.Consumers;
 using IdentityApp.Data;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using StackExchange.Redis;
@@ -7,6 +8,12 @@ using StackExchange.Redis;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
+// Shared Data Protection configuration so other microservices (e.g. DoctorAppointmentBookingAPI) can decrypt cookies
+var sharedKeysDirectory = new DirectoryInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ASP.NET", "DataProtection-Keys"));
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(sharedKeysDirectory)
+    .SetApplicationName("InterviewProjectsSharedApp");
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
