@@ -1,0 +1,139 @@
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-sizing: border-box;
+}
+
+.navbar-brand {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-h);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.navbar-brand span {
+  color: var(--accent);
+}
+
+.navbar-links {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-link {
+  color: var(--text);
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.nav-link:hover,
+.nav-link.active {
+  color: var(--text-h);
+  background: var(--accent-bg);
+}
+
+.navbar-auth {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--text-h);
+  background: var(--social-bg);
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+}
+
+.user-avatar-circle {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-btn {
+  font-size: 14px;
+  font-weight: 600;
+  padding: 7px 14px;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: all 0.2s;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-btn-outline {
+  border: 1px solid var(--border);
+  color: var(--text-h);
+  background: transparent;
+}
+
+.nav-btn-outline:hover {
+  background: var(--social-bg);
+  border-color: var(--text);
+}
+
+.nav-btn-primary {
+  background: var(--accent);
+  color: #fff;
+  border: 1px solid transparent;
+}
+
+.nav-btn-primary:hover {
+  opacity: 0.9;
+}
+
+.nav-btn-danger {
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.08);
+}
+
+.nav-btn-danger:hover {
+  background: rgba(239, 68, 68, 0.16);
+  border-color: #ef4444;
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px 16px;
+  }
+  .navbar-links {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}

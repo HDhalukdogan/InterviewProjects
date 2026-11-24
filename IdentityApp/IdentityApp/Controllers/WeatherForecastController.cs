@@ -10,7 +10,7 @@ using System.Text.Json;
 namespace IdentityApp.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class WeatherForecastController(IConnectionMultiplexer redis) : ControllerBase
     {
         private readonly IDatabase _db = redis.GetDatabase();
@@ -22,36 +22,45 @@ namespace IdentityApp.Controllers
         [HttpGet(Name = "GetWeatherForecast")]
         public async Task<IEnumerable<WeatherForecast>> Get()
         {
-            var username = User.Identity?.Name;
-
+            var username = User.Identity?.Name ?? "Anonymous";
             var userId = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+            var guid = Guid.TryParse(userId, out var parsedGuid) ? parsedGuid : Guid.Empty;
 
-            var userDto = new UserDto(new Guid(userId), username);
+            var userDto = new UserDto(guid, username);
             var json = JsonSerializer.Serialize(userDto);
-            await _db.StringSetAsync("user", json, TimeSpan.FromSeconds(5));
 
-            var jsonString = await _db.StringGetAsync("user");
-
-            var obj = JsonSerializer.Deserialize<UserDto>(jsonString.ToString());
-
-
-            var factory = new ConnectionFactory
+            try
             {
-                HostName = RabbitMQConstants.HostName,
-                Port = int.Parse(RabbitMQConstants.Port),
-                UserName = RabbitMQConstants.UserName,
-                Password = RabbitMQConstants.Password,
-            };
-            await using var connection = await factory.CreateConnectionAsync();
-            await using var channel = await connection.CreateChannelAsync();
+                await _db.StringSetAsync("user", json, TimeSpan.FromSeconds(5));
+                var jsonString = await _db.StringGetAsync("user");
+                if (!jsonString.IsNullOrEmpty)
+                {
+                    var obj = JsonSerializer.Deserialize<UserDto>(jsonString.ToString()!);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Redis error in WeatherForecast: {ex.Message}");
+            }
 
-            var body = Encoding.UTF8.GetBytes(json);
+            try
+            {
+                var factory = new ConnectionFactory
+                {
+                    HostName = RabbitMQConstants.HostName,
+                    Port = int.Parse(RabbitMQConstants.Port),
+                    UserName = RabbitMQConstants.UserName,
+                    Password = RabbitMQConstants.Password,
+                };
+                await using var connection = await factory.CreateConnectionAsync();
+                await using var channel = await connection.CreateChannelAsync();
 
-            await channel.BasicPublishAsync(
-                exchange: string.Empty,
-                routingKey: RabbitMQConstants.UserQueue,
-                body: body);
+                var body = Encoding.UTF8.GetBytes(json);
 
+                await channel.BasicPublishAsync(
+                    exchange: string.Empty,
+                    routingKey: RabbitMQConstants.UserQueue,
+                    body: body);
 
             //var properties = new BasicProperties
             //{
@@ -66,6 +75,11 @@ namespace IdentityApp.Controllers
             //    basicProperties: properties,
             //    body: body,
             //    cancellationToken: default);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"RabbitMQ error in WeatherForecast: {ex.Message}");
+            }
 
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
